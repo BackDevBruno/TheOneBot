@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class Quote(BaseModel):
     id: str = Field(alias="_id")
     dialog: str

@@ -1,6 +1,8 @@
+import data.api_requests as req
+
 from models.character import Character
 from models.quote import Quote
-import api_requests as req
+
 
 characters = []
 characters_by_id = {}

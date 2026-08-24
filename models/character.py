@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class Character(BaseModel):
     id: str = Field(alias="_id")
     name: str
