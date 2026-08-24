@@ -7,8 +7,6 @@ A simple **Python Discord bot** that integrates with [The One API](https://the-o
 * 🔎 Search for characters and quotes
 * 📜 Fetch data directly from The One API
 * 🤖 Discord slash commands
-* ⚡ Asynchronous API requests
-* 🧩 Clean separation between Discord and API logic
 
 ## 🛠️ Tech Stack
 
