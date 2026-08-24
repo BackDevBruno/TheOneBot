@@ -1,7 +1,10 @@
 import discord
+import data.cache as cache
+import ui.pagination_view as pagination_view
 
 from discord import app_commands
 from discord.ext import commands
+from typing import Optional
 
 
 class Bot(commands.Bot):
@@ -19,15 +22,21 @@ class Bot(commands.Bot):
 
 bot = Bot()
 
-@bot.tree.command(name="purge", description="Delete recent messages")
-@app_commands.describe(amount="Number of messages to delete, default to 1")
-async def purge(
+@bot.tree.command(name="characters", description="Displays all characters")
+@app_commands.describe(name="Character name (optional)")
+async def display_characters(
     interaction: discord.Interaction,
-    amount: app_commands.Range[int, 1, 100],
+    name: Optional[str]
 ):
-    await interaction.channel.purge(limit=amount) # type: ignore
+    characters = []
+    if name is not None and name.strip() != "":
+        characters = cache.get_characters_by_name(name)
+    else:
+        characters = cache.get_characters()
+
+    view = pagination_view.PaginationView(characters)
 
     await interaction.response.send_message(
-        f"Deleted {amount} messages.",
-        ephemeral=True
-    ) 
+        embed=view.get_embed(),
+        view=view,
+    )
