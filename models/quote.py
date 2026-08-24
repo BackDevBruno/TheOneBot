@@ -9,4 +9,4 @@ class Quote(BaseModel):
     character_name: str = Field(default="")
 
     def __str__(self) -> str:
-        return f"{self.character_name}: {self.dialog}"
+        return f"**{self.character_name}:** \"{self.dialog}\""

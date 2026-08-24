@@ -62,7 +62,9 @@ def get_quotes_by_character(character_name: str) -> list[Quote]:
         return []
 
     c_quotes = []
-    for character in characters:
-        c_quotes.append([q for q in quotes if q.character_id == character.id])
+    for c in characters:
+        for q in quotes:
+            if q.character_id == c.id:
+                c_quotes.append(q)
 
     return c_quotes

@@ -15,7 +15,12 @@ class Character(BaseModel):
     spouse: str | None = None
 
     def __str__(self) -> str:
-        race = self.race or "Unknown"
-        gender = self.gender or "Unknown"
-
-        return f"Name: {self.name} (Race: {race}, Gender: {gender})"
+        return (
+            f"**{self.name}**\n"+
+            f"Race: {self.race or "Unknown"}\n"+
+            f"Gender: {self.gender or "Unknown"}\n"
+            f"Birth: {self.birth or "Unknown"}\n"
+            f"Death: {self.death or "Unknown"}\n"
+            f"Realm: {self.realm or "Unknown"}\n"
+            f"Spouse: {self.spouse or "Unknown"}"
+        )
