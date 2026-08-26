@@ -1,84 +1,96 @@
 import discord
-import math
+from math import ceil
 
+
+# TO-DO: Remove buttons when content can fit in a single page
 
 class PaginationView(discord.ui.View):
-    def __init__(self, data, page_size=5, search_text=None):
+    def __init__(
+        self,
+        data,
+        page_size: int = 5,
+        search_text: str | None = None,
+    ):
         super().__init__(timeout=60)
 
         self.data = data
-        self.search_text = search_text.strip() if search_text is not None else ""
         self.page_size = page_size
-
-        self.num_pages = max(math.ceil(len(self.data) / self.page_size) - 1, 0)
+        self.search_text = search_text.strip() if search_text else ""
         self.current_page = 0
 
+    @property
+    def total_pages(self) -> int:
+        return max(ceil(len(self.data) / self.page_size), 1)
+
+    @property
+    def page_items(self):
+        start = self.current_page * self.page_size
+        end = start + self.page_size
+
+        return self.data[start:end]
+
+    def update_buttons(self):
+        multiple_pages = self.total_pages > 1
+
+        self.previous_button.disabled = (
+            not multiple_pages or self.current_page == 0
+        )
+
+        self.next_button.disabled = (
+            not multiple_pages or self.current_page == self.total_pages - 1
+        )
+
     def get_embed(self) -> discord.Embed:
-        list_str = ""
-        title = ""
+        if not self.data:
+            title = (
+                f"Character '{self.search_text}' not found"
+                if self.search_text
+                else "No results"
+            )
 
-        if len(self.data) > 0:
-            current_page_size = self.current_page * self.page_size
+            return discord.Embed(title=title)
 
-            list = ""
-            if len(self.data) > self.page_size:
-                title = f"Page {self.current_page + 1}/{self.num_pages + 1}"
-                list = [
-                    f"{i + current_page_size}. {c.__str__()}\n" 
-                    for i, c in enumerate(
-                        self.data[current_page_size : current_page_size + self.page_size],
-                        start=1,
-                    )
-                ]
-            else:
-                list = [
-                    f"{c.__str__()}\n" 
-                    for c in self.data[current_page_size : current_page_size + self.page_size]
-                ]
-            list_str = "\n".join(list)
-        else:
-            if self.search_text != "":
-                title = f"Character '{self.search_text}' not found"
-            else:
-                title = "No results"
+        self.update_buttons()
 
-        if self.num_pages == 0:
-            for child in self.children:
-                if isinstance(child, discord.ui.Button):
-                    self.remove_item(child)
-        else:
-            for child in self.children:
-                if isinstance(child, discord.ui.Button):
-                    child.disabled = False
-                    if ((self.current_page == 0 and child.label == "<-") or
-                        (self.current_page == self.num_pages and child.label == "->")):
-                        child.disabled = True
+        items = "\n".join(
+            f"{index}. {item}"
+            for index, item in enumerate(
+                self.page_items,
+                start=self.current_page * self.page_size + 1,
+            )
+        )
 
-        return discord.Embed(title=title, description=list_str)
+        title = f"Page {self.current_page + 1}/{self.total_pages}"
+
+        return discord.Embed(
+            title=title,
+            description=items,
+        )
 
     @discord.ui.button(label="<-", style=discord.ButtonStyle.gray)
-    async def previous(
+    async def previous_button(
         self,
         interaction: discord.Interaction,
-        button: discord.ui.Button
+        button: discord.ui.Button,
     ):
         if self.current_page > 0:
             self.current_page -= 1
+
         await interaction.response.edit_message(
             embed=self.get_embed(),
-            view=self
+            view=self,
         )
-            
-    @discord.ui.button(label="->", style=discord.ButtonStyle.gray)
-    async def next(
+
+    @discord.ui.button(label="->", style=discord.ButtonStyle.gray,)
+    async def next_button(
         self,
         interaction: discord.Interaction,
-        button: discord.ui.Button
+        button: discord.ui.Button,
     ):
-        if self.current_page < self.num_pages:
+        if self.current_page < self.total_pages - 1:
             self.current_page += 1
+
         await interaction.response.edit_message(
             embed=self.get_embed(),
-            view=self
+            view=self,
         )
-            

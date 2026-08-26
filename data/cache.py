@@ -61,6 +61,7 @@ def get_quotes_by_character(character_name: str) -> list[Quote]:
     if characters == []:
         return []
 
+    # TO-DO: improve performance of the code below
     c_quotes = []
     for c in characters:
         for q in quotes:
